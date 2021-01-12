@@ -1,1 +1,3 @@
-module "thx"
+module thx
+
+go 1.15
