@@ -3,8 +3,9 @@ package configs
 import "github.com/tkanos/gonfig"
 
 type Configuration struct {
-	Port             int
-	ConnectionString string
+	Port             int `json:"port"`
+	ConnectionString string `json:"connectionString"`
+	DSN              string `json:"dsn"`
 }
 
 func Init() (Configuration, error) {
