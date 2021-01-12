@@ -2,3 +2,4 @@
 configs.json
 app.log
 docker-compose.yml
+rest.http

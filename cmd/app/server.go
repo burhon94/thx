@@ -1,36 +1,55 @@
 package app
 
 import (
+	"context"
 	"fmt"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
-
-	"github.com/gorilla/mux"
 )
 
-type server struct {
-	router *mux.Router
-	db     *serviceDB
-	url    string
-}
+func InitServer(port string, router mux.Router) error {
+	var (
+		quitCh = make(chan os.Signal)
+		srv    *http.Server
+	)
 
-func NewServer(url string, router *mux.Router, db *serviceDB) *server {
-	return &server{
-		router: router,
-		db:     db,
-		url:    url,
-	}
-}
-
-func InitServer(server *server) error {
-	newServer := http.Server{
-		Addr:         fmt.Sprintf(":%s", server.url),
-		Handler:      server.router,
+	srv = &http.Server{
+		Addr:         fmt.Sprintf(":%s", port),
+		Handler:      &router,
 		ReadTimeout:  time.Second * 120,
 		WriteTimeout: time.Second * 120,
 	}
 
-	log.Printf("server starting on: %s", server.url)
-	return newServer.ListenAndServe()
+	signal.Notify(quitCh, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGINT)
+	go graceShutdown(quitCh, srv)
+
+	log.Printf("server: starting on 127.0.0.1%s\n", port)
+	return srv.ListenAndServe()
+
+}
+
+func graceShutdown(quitCh chan os.Signal, srv *http.Server) {
+	var (
+		ctx        context.Context
+		cancelFunc context.CancelFunc
+		dur        time.Time
+		err        error
+	)
+
+	s := <-quitCh
+	log.Printf("server: received signal %+v\n", s)
+
+	dur = time.Now().Add(30 * time.Second) // dummy deadline
+	ctx, cancelFunc = context.WithDeadline(context.Background(), dur)
+	defer cancelFunc()
+
+	err = srv.Shutdown(ctx)
+	if err != nil {
+		log.Panicln("server: couldn't shutdown because of " + err.Error())
+	}
 }
