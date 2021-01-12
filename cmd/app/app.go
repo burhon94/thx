@@ -10,7 +10,6 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-
 func Run(configuration configs.Configuration) {
 	log.Printf("configs: %v", configuration)
 
@@ -19,9 +18,10 @@ func Run(configuration configs.Configuration) {
 	if err != nil {
 		log.Fatalf("can't connect to DB: %v", err)
 	}
-	log.Printf("pgxPool: %v", pool)
 
-	err = InitServer(configuration)
+	db := NewServiceDB(pool)
+	newServer := NewServer(configuration.Port, nil, db)
+	err = InitServer(newServer)
 	if err != nil {
 		log.Panicln("server: " + err.Error())
 	}

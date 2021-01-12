@@ -2,21 +2,35 @@ package app
 
 import (
 	"fmt"
-	"github.com/burhon94/thx/pkg/configs"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
-func InitServer(config configs.Configuration) (err error) {
+type server struct {
+	router *mux.Router
+	db     *serviceDB
+	url    string
+}
 
-	server := &http.Server{
-		Addr:              fmt.Sprintf(":%s", config.Port),
-		Handler:           nil,
-		ReadHeaderTimeout: 120 * time.Second,
-		WriteTimeout:      120 * time.Second,
+func NewServer(url string, router *mux.Router, db *serviceDB) *server {
+	return &server{
+		router: router,
+		db:     db,
+		url:    url,
+	}
+}
+
+func InitServer(server *server) error {
+	newServer := http.Server{
+		Addr:         fmt.Sprintf(":%s", server.url),
+		Handler:      server.router,
+		ReadTimeout:  time.Second * 120,
+		WriteTimeout: time.Second * 120,
 	}
 
-	log.Printf("server: starting on 127.0.0.1:%s\n", config.Port)
-	return server.ListenAndServe()
+	log.Printf("server starting on: %s", server.url)
+	return newServer.ListenAndServe()
 }
