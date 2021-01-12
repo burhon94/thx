@@ -1,21 +1,12 @@
 package app
 
 import (
-	"fmt"
 	"github.com/burhon94/thx/pkg/configs"
 	"log"
 	"os"
-	"time"
 )
 
-func Run(text string, configuration configs.Configuration)  {
-	fmt.Printf("You printed: %s", text)
-	log.Printf("Your configs: %v", configuration)
-	for i := 5; i >= 1; i-- {
-		fmt.Printf("Bye: %v\n", i)
-		time.Sleep(time.Second)
-		continue
-	}
-
+func Run(configuration configs.Configuration)  {
+	log.Printf("server start on: %v", configuration.Port)
 	os.Exit(200)
 }

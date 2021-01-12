@@ -1,3 +1,4 @@
 .idea/
 configs.json
 app.log
+docker-compose.yml

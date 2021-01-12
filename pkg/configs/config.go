@@ -3,7 +3,7 @@ package configs
 import "github.com/tkanos/gonfig"
 
 type Configuration struct {
-	Port int
+	Port             int
 	ConnectionString string
 }
 
@@ -16,5 +16,3 @@ func Init() (Configuration, error) {
 
 	return conf, nil
 }
-
-
