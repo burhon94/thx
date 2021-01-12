@@ -9,7 +9,7 @@ import (
 )
 
 func Run(text string, configuration configs.Configuration)  {
-	log.Printf("You printed: %s", text)
+	fmt.Printf("You printed: %s", text)
 	log.Printf("Your configs: %v", configuration)
 	for i := 5; i >= 1; i-- {
 		fmt.Printf("Bye: %v\n", i)
