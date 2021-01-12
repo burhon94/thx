@@ -3,7 +3,7 @@ package configs
 import "github.com/tkanos/gonfig"
 
 type Configuration struct {
-	Port             int `json:"port"`
+	Port             string `json:"port"`
 	ConnectionString string `json:"connectionString"`
 	DSN              string `json:"dsn"`
 }

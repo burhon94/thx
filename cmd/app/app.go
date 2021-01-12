@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"log"
-	"os"
 	"time"
 
 	"github.com/burhon94/thx/pkg/configs"
@@ -20,9 +19,10 @@ func Run(configuration configs.Configuration) {
 	if err != nil {
 		log.Fatalf("can't connect to DB: %v", err)
 	}
-
 	log.Printf("pgxPool: %v", pool)
 
-	log.Printf("server start on: %v", configuration.Port)
-	os.Exit(200)
+	err = InitServer(configuration)
+	if err != nil {
+		log.Panicln("server: " + err.Error())
+	}
 }
