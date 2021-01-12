@@ -21,7 +21,8 @@ func Run(configuration configs.Configuration) {
 
 	db := NewServiceDB(pool)
 	log.Print(db)
-	routes := InitRoutes()
+	newRoutes := NewRoutes(pool)
+	routes := newRoutes.InitRoutes()
 	err = InitServer(configuration.Port, routes)
 	if err != nil {
 		log.Panicln("server: " + err.Error())
