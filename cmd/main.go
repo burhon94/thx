@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"thx/cmd/app"
+	"github.com/burhon94/thx/cmd/app"
 )
 
 func main() {
