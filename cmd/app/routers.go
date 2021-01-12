@@ -19,5 +19,7 @@ func (r *routes) InitRoutes() mux.Router {
 	router.HandleFunc("/health", handleHealth).Methods("GET")
 	router.HandleFunc("/test", r.handleTest).Methods("POST")
 
+	router.HandleFunc("/sayThx", r.SayThx).Methods("POST")
+
 	return router
 }
