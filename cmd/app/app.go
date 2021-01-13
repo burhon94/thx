@@ -20,8 +20,7 @@ func Run(configuration configs.Configuration) {
 	}
 
 	db := NewServiceDB(pool)
-	log.Print(db)
-	newRoutes := NewRoutes(pool)
+	newRoutes := NewRoutes(db)
 	routes := newRoutes.InitRoutes()
 	err = InitServer(configuration.Port, routes)
 	if err != nil {

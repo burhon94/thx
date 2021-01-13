@@ -1,65 +1,93 @@
 package app
 
 import (
-	"context"
-	"encoding/json"
-	"io/ioutil"
+	"errors"
+	"fmt"
+	"github.com/burhon94/thx/pkg/rest"
+	"github.com/burhon94/thx/pkg/structs"
+	"log"
 	"net/http"
 )
 
-func handleHealth(w http.ResponseWriter, r *http.Request)  {
-	w.Write([]byte("it work"))
-	w.WriteHeader(202)
+func handleHealth(w http.ResponseWriter, _ *http.Request) {
+	var resp structs.ResponseAPI
+
+	resp.Code = 200
+	resp.Payload = "Hello, from THX :)"
+	resp.Info = "Hello, from THX :)"
+	resp.Errors = errors.New("hello, from THX :)")
+
+	err := rest.WriteBody(w, 202, resp)
+	if err != nil {
+		log.Printf("can't response: %v", err)
+	}
 }
 
-func (r *routes) handleTest(w http.ResponseWriter, request *http.Request)  {
-	sql := `insert into users values (2);`
-	_, err := r.pool.Exec(context.Background(), sql)
+func (routers *routes) handleTest(w http.ResponseWriter, _ *http.Request) {
+
+	var resp structs.ResponseAPI
+
+	err := routers.DBService.add()
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		w.WriteHeader(500)
+		resp.Code = 500
+		resp.Errors = err
+
+		err := rest.WriteBody(w, 500, resp)
+		if err != nil {
+			log.Printf("can't response: %v", err)
+		}
+
 		return
 	}
 
-	w.Write([]byte("add Success"))
-	w.WriteHeader(200)
+	resp.Code = 200
+	resp.Payload = "add Success"
+
+	err = rest.WriteBody(w, 200, resp)
+	if err != nil {
+		log.Printf(" can't response: %v", resp)
+	}
 }
 
-type reqData struct {
-	Client1 client `json:"client_1"`
-	Client2 client `json:"client_2"`
-	Action int `json:"action"`
-}
-
-type client struct {
-	Id int `json:"id"`
-	Name string `json:"name"`
-	SurName string `json:"sur_name"`
-	CountThx int `json:"count_thx"`
-	CountStar int `json:"count_star"`
-	CanDo bool `json:"can_do"`
-}
-
-func (r *routes) SayThx(w http.ResponseWriter, request *http.Request)  {
+func (routers *routes) SayThx(w http.ResponseWriter, r *http.Request) {
 	var (
-		req reqData
+		req  structs.ReqData
+		resp structs.ResponseAPI
 	)
 
-	body, _ := ioutil.ReadAll(request.Body)
-
-	_ = json.Unmarshal(body, &req)
-
-	sql := `update users
-set count_star = count_star + 1
-where id = 1;`
-
-	_, err := r.pool.Exec(context.Background(), sql)
+	err := rest.ReadBody(r, req)
 	if err != nil {
-		w.Write([]byte("500"))
-		w.WriteHeader(500)
+		log.Printf("")
+		resp.Code = 400
+		resp.Errors = errors.New("error.BadRequest")
+
+		err := rest.WriteBody(w, 400, resp)
+		if err != nil {
+			log.Printf("can't sent response: %v", err)
+		}
+
 		return
 	}
 
-	w.WriteHeader(202)
-	w.Write([]byte("OK set"))
+	err = routers.DBService.sayThx()
+	if err != nil {
+		resp.Code = 500
+		resp.Errors = errors.New(fmt.Sprintf("error.SayThx: %s", err.Error()))
+
+		err = rest.WriteBody(w, 500, resp)
+		if err != nil {
+			log.Printf("can't sent response: %v", err)
+		}
+
+		return
+	}
+
+	resp.Code = 202
+	resp.Payload = "OK, Success"
+	resp.Info = "say thx :)"
+
+	err = rest.WriteBody(w, 202, resp)
+	if err != nil {
+		log.Printf("can't sent response: %v", err)
+	}
 }

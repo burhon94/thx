@@ -2,24 +2,23 @@ package app
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 var router mux.Router
 
 type routes struct {
-	pool *pgxpool.Pool
+	DBService *serviceDB
 }
 
-func NewRoutes(pool *pgxpool.Pool) *routes {
-	return &routes{pool: pool}
+func NewRoutes(dbService *serviceDB) *routes {
+	return &routes{DBService: dbService}
 }
 
-func (r *routes) InitRoutes() mux.Router {
+func (routers *routes) InitRoutes() mux.Router {
 	router.HandleFunc("/health", handleHealth).Methods("GET")
-	router.HandleFunc("/test", r.handleTest).Methods("POST")
+	router.HandleFunc("/test", routers.handleTest).Methods("POST")
 
-	router.HandleFunc("/sayThx", r.SayThx).Methods("POST")
+	router.HandleFunc("/sayThx", routers.SayThx).Methods("POST")
 
 	return router
 }
